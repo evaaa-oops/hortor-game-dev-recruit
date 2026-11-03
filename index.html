@@ -649,30 +649,32 @@
           <button class="toggle-btn" onclick="toggleForm('self')">我自己看看</button>
         </div>
 
-        <form id="referralForm">
+        <form id="referralForm" enctype="multipart/form-data">
+          <input type="hidden" name="_subject" value="🎮 游戏制作人招聘 - 新投递">
+          <input type="hidden" name="_template" value="table">
           <div class="form-group">
             <label>我的称呼 / 推荐人 <span class="required">*</span></label>
-            <input type="text" id="referrerName" placeholder="你的姓名，用于发放推荐奖励" required>
+            <input type="text" name="推荐人姓名" id="referrerName" placeholder="你的姓名，用于发放推荐奖励" required>
           </div>
           <div class="form-group">
             <label>我的手机号 <span class="required">*</span></label>
-            <input type="tel" id="referrerPhone" placeholder="11 位手机号" required>
+            <input type="tel" name="推荐人手机号" id="referrerPhone" placeholder="11 位手机号" required>
           </div>
 
           <div id="candidateFields">
             <div class="form-group">
               <label>候选人姓名 <span class="required">*</span></label>
-              <input type="text" id="candidateName" placeholder="怎么称呼 TA">
+              <input type="text" name="候选人姓名" id="candidateName" placeholder="怎么称呼 TA">
             </div>
             <div class="form-group">
               <label>候选人手机号 <span class="required">*</span></label>
-              <input type="tel" id="candidatePhone" placeholder="11 位手机号">
+              <input type="tel" name="候选人手机号" id="candidatePhone" placeholder="11 位手机号">
             </div>
           </div>
 
           <div class="form-group">
             <label>TA 最满意的一件作品链接</label>
-            <input type="text" id="works" placeholder="上线产品 / 个人作品 / GameJam 都行">
+            <input type="text" name="作品链接" id="works" placeholder="上线产品 / 个人作品 / GameJam 都行">
           </div>
 
           <div class="form-group">
@@ -681,13 +683,13 @@
               <div class="icon">📄</div>
               <div class="title">点击上传简历</div>
               <div class="desc">PDF / Word / JPG / PNG，不超过 15MB；自荐建议附上，评估更快</div>
-              <input type="file" id="resume" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+              <input type="file" name="attachment" id="resume" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
             </div>
           </div>
 
           <div class="form-group">
             <label>一句话推荐理由</label>
-            <textarea id="reason" placeholder="比如：做过 2 款百万流水小游戏，AI 出原型很快"></textarea>
+            <textarea name="推荐理由" id="reason" placeholder="比如：做过 2 款百万流水小游戏，AI 出原型很快"></textarea>
           </div>
 
           <div class="checkbox-group">
@@ -695,7 +697,7 @@
             <label for="consent">我已告知对方并取得同意，同意将信息提供给疯狂游戏 HR 用于招聘沟通。</label>
           </div>
 
-          <button type="submit" class="submit-btn">提交推荐</button>
+          <button type="submit" class="submit-btn" id="submitBtn">提交推荐</button>
         </form>
 
         <div class="success-msg" id="successMsg">
@@ -813,24 +815,41 @@
       });
     }
 
-    // Form submit
+    // Form submit - send to Formspree
     document.getElementById('referralForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const formData = {
-        referrerName: document.getElementById('referrerName').value,
-        referrerPhone: document.getElementById('referrerPhone').value,
-        candidateName: document.getElementById('candidateName').value,
-        candidatePhone: document.getElementById('candidatePhone').value,
-        works: document.getElementById('works').value,
-        reason: document.getElementById('reason').value,
-        type: document.querySelector('.toggle-btn.active').textContent,
-        submittedAt: new Date().toISOString()
-      };
-      const submissions = JSON.parse(localStorage.getItem('referrals') || '[]');
-      submissions.push(formData);
-      localStorage.setItem('referrals', JSON.stringify(submissions));
-      this.style.display = 'none';
-      document.getElementById('successMsg').style.display = 'block';
+      const btn = document.getElementById('submitBtn');
+      btn.textContent = '提交中...';
+      btn.disabled = true;
+
+      const form = this;
+      const formData = new FormData(form);
+      formData.append('提交类型', document.querySelector('.toggle-btn.active').textContent);
+
+      fetch('https://formspree.io/f/moeepovv', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' }
+      }).then(response => {
+        if (response.ok) {
+          form.style.display = 'none';
+          document.getElementById('successMsg').style.display = 'block';
+        } else {
+          response.json().then(data => {
+            if (data.errors) {
+              alert('提交失败：' + data.errors.map(e => e.message).join(', '));
+            } else {
+              alert('提交失败，请重试');
+            }
+          });
+          btn.textContent = '提交推荐';
+          btn.disabled = false;
+        }
+      }).catch(error => {
+        alert('网络错误，请重试');
+        btn.textContent = '提交推荐';
+        btn.disabled = false;
+      });
     });
 
     document.getElementById('resume').addEventListener('change', function(e) {
