@@ -31,7 +31,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Subtle grid background */
     body::before {
       content: '';
       position: fixed;
@@ -188,8 +187,12 @@
       font-weight: 700;
     }
 
-    /* Form Section */
-    .form-section { padding: 28px 20px; }
+    /* Form Section - hidden by default */
+    .form-section {
+      padding: 28px 20px;
+      display: none;
+    }
+    .form-section.visible { display: block; }
     .form-header { margin-bottom: 24px; }
     .form-header h2 {
       font-size: 20px;
@@ -361,6 +364,114 @@
       box-shadow: 0 0 16px rgba(0, 212, 255, 0.2);
     }
 
+    /* Share Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: #12122a;
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px;
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+      width: 100%;
+      max-width: 480px;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-handle {
+      width: 36px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .modal-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .share-link-box {
+      background: rgba(0, 212, 255, 0.06);
+      border: 1px solid var(--accent-border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .share-link-label {
+      font-size: 13px;
+      color: var(--cyan);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .share-link-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .share-link-url {
+      flex: 1;
+      font-size: 13px;
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .copy-btn {
+      flex-shrink: 0;
+      padding: 10px 18px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:active { transform: scale(0.95); }
+    .wechat-share-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #07c160, #06ad56);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+    .wechat-share-btn:active { transform: scale(0.98); }
+    .modal-footer-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
     /* Footer */
     .footer {
       text-align: center;
@@ -483,8 +594,8 @@
       </div>
     </div>
 
-    <!-- 表单 -->
-    <div class="form-section">
+    <!-- 表单（默认隐藏，点"我要推荐/自荐"后显示） -->
+    <div class="form-section" id="formSection">
       <div class="form-header">
         <h2>推荐一位候选人</h2>
         <p>我们只把信息用于本次招聘联系，48 小时内必有回复。</p>
@@ -563,11 +674,41 @@
 
   <!-- Bottom Actions -->
   <div class="bottom-actions">
-    <button class="btn-secondary" onclick="sharePage()">转发给朋友</button>
-    <button class="btn-primary" onclick="scrollToForm()">我要推荐 / 自荐</button>
+    <button class="btn-secondary" onclick="openShareModal()">转发给朋友</button>
+    <button class="btn-primary" onclick="showForm()">我要推荐 / 自荐</button>
+  </div>
+
+  <!-- Share Modal -->
+  <div class="modal-overlay" id="shareModal" onclick="closeShareModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <h3 class="modal-title">转发这条链接</h3>
+      <p class="modal-subtitle">你的专属链接已带上归因码，谁通过它推荐成功，奖励算你的。</p>
+      <div class="share-link-box">
+        <div class="share-link-label">我的推荐链接</div>
+        <div class="share-link-row">
+          <div class="share-link-url" id="shareUrl">https://evaaa-oops.github.io/hortor-game-dev-recruit/</div>
+          <button class="copy-btn" onclick="copyLink()">复制</button>
+        </div>
+      </div>
+      <button class="wechat-share-btn" onclick="shareToWechat()">在微信里转发</button>
+      <p class="modal-footer-text">对方点开直接能看到岗位，不用加好友、不用扫码。</p>
+    </div>
   </div>
 
   <script>
+    const PAGE_URL = 'https://evaaa-oops.github.io/hortor-game-dev-recruit/';
+
+    // Show form section
+    function showForm() {
+      const formSection = document.getElementById('formSection');
+      formSection.classList.add('visible');
+      setTimeout(() => {
+        formSection.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+
+    // Toggle form type
     function toggleForm(type) {
       const btns = document.querySelectorAll('.toggle-btn');
       const candidateFields = document.getElementById('candidateFields');
@@ -581,23 +722,51 @@
       }
     }
 
-    function scrollToForm() {
-      document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+    // Share modal
+    function openShareModal() {
+      document.getElementById('shareModal').classList.add('active');
+    }
+    function closeShareModal(e) {
+      if (e.target === document.getElementById('shareModal')) {
+        document.getElementById('shareModal').classList.remove('active');
+      }
     }
 
-    function sharePage() {
+    // Copy link
+    function copyLink() {
+      navigator.clipboard.writeText(PAGE_URL).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = '已复制';
+        setTimeout(() => { btn.textContent = '复制'; }, 2000);
+      }).catch(() => {
+        // Fallback
+        const input = document.createElement('input');
+        input.value = PAGE_URL;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = '已复制';
+        setTimeout(() => { btn.textContent = '复制'; }, 2000);
+      });
+    }
+
+    // WeChat share
+    function shareToWechat() {
       if (navigator.share) {
         navigator.share({
           title: '游戏制作人（AI 方向）招聘',
           text: '用 AI 做过游戏？我们找的就是你！推荐成功入职得 ¥10,000',
-          url: window.location.href
+          url: PAGE_URL
         });
       } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert('链接已复制，快去转发吧！');
+        copyLink();
+        alert('链接已复制，请打开微信粘贴转发～');
       }
     }
 
+    // Form submit
     document.getElementById('referralForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const formData = {
