@@ -830,19 +830,20 @@
         const linkField = document.getElementById('resumeLinkField');
 
         titleEl.textContent = '上传中...';
-        descEl.textContent = '请稍候';
+        descEl.textContent = '请稍候，正在上传简历';
 
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('upload_preset', 'hortor_resume');
 
-        fetch('https://file.io', {
+        fetch('https://api.cloudinary.com/v1_1/djdkr6wq/raw/upload', {
           method: 'POST',
           body: formData
         }).then(res => res.json()).then(data => {
-          if (data.success) {
+          if (data.secure_url) {
             titleEl.textContent = '✅ ' + file.name;
             descEl.textContent = '上传成功，提交时自动附上';
-            linkField.value = data.link;
+            linkField.value = data.secure_url;
           } else {
             titleEl.textContent = '❌ 上传失败';
             descEl.textContent = '请重试，或直接在推荐理由中附上简历链接';
