@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <title>游戏制作人招聘海报</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1080px;
+      margin: 0 auto;
+      background: #050510;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+      color: #e8f0f8;
+      overflow: hidden;
+    }
+
+    .poster {
+      width: 1080px;
+      min-height: 2400px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background effects */
+    .poster::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .top-glow {
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse, rgba(0, 212, 255, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 0 80px;
+    }
+
+    /* Top decorative line */
+    .top-line {
+      width: 400px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.5), transparent);
+      margin: 60px auto 0;
+    }
+
+    /* Job title */
+    .job-title {
+      text-align: center;
+      margin-top: 40px;
+    }
+    .job-title .name {
+      font-size: 42px;
+      font-weight: 700;
+      color: #00d4ff;
+      letter-spacing: 4px;
+    }
+    .job-title .company {
+      font-size: 28px;
+      color: #5a6a7a;
+      margin-top: 12px;
+      letter-spacing: 2px;
+    }
+
+    /* Main headline */
+    .headline {
+      text-align: center;
+      margin-top: 70px;
+    }
+    .headline h1 {
+      font-size: 72px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.4;
+      letter-spacing: 2px;
+    }
+
+    /* Subtitle */
+    .subtitle {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 34px;
+      color: #6b7d93;
+      letter-spacing: 1px;
+    }
+
+    /* Badge */
+    .badge-wrap {
+      text-align: center;
+      margin-top: 50px;
+    }
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #00c853, #00a844);
+      color: #fff;
+      padding: 20px 60px;
+      border-radius: 50px;
+      font-size: 36px;
+      font-weight: 700;
+      box-shadow: 0 0 40px rgba(0, 200, 83, 0.25);
+      letter-spacing: 1px;
+    }
+    .badge-note {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 26px;
+      color: #4a5a6a;
+    }
+
+    /* Divider */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      margin: 55px 0;
+    }
+
+    /* Section title */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .section-title .bar {
+      width: 4px;
+      height: 32px;
+      background: linear-gradient(180deg, #00d4ff, #7b2ff7);
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+    }
+    .section-title h2 {
+      font-size: 40px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Highlight cards */
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      background: rgba(0, 212, 255, 0.03);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: 20px;
+      padding: 32px 36px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    .card .emoji {
+      font-size: 44px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .card .text h3 {
+      font-size: 34px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .card .text p {
+      font-size: 26px;
+      color: #6b7d93;
+      line-height: 1.6;
+    }
+
+    /* Requirements */
+    .req-list {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    .req-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .req-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .req-icon.yes {
+      background: rgba(0, 212, 255, 0.15);
+      color: #00d4ff;
+    }
+    .req-icon.no {
+      background: rgba(255, 71, 87, 0.12);
+      color: #ff4757;
+    }
+    .req-text h3 {
+      font-size: 34px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .req-text p {
+      font-size: 26px;
+      color: #6b7d93;
+    }
+
+    /* QR section */
+    .qr-section {
+      text-align: center;
+      padding: 50px 0 60px;
+    }
+    .qr-card {
+      display: inline-block;
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 36px;
+    }
+    .qr-card img {
+      width: 280px;
+      height: 280px;
+      display: block;
+    }
+    .qr-hint {
+      font-size: 38px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .qr-company {
+      font-size: 30px;
+      color: #6b7d93;
+      margin-bottom: 12px;
+    }
+    .qr-contact {
+      font-size: 26px;
+      color: #4a5a6a;
+    }
+
+    /* Bottom line */
+    .bottom-line {
+      width: 400px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.5), transparent);
+      margin: 0 auto 50px;
+    }
+  </style>
+</head>
+<body>
+  <div class="poster">
+    <div class="top-glow"></div>
+    <div class="content">
+
+      <!-- Top line -->
+      <div class="top-line"></div>
+
+      <!-- Job title -->
+      <div class="job-title">
+        <div class="name">游戏制作人（AI 向）</div>
+        <div class="company">疯狂游戏（豪腾系）</div>
+      </div>
+
+      <!-- Headline -->
+      <div class="headline">
+        <h1>用 AI 做过游戏？<br>我们找的就是你！</h1>
+      </div>
+
+      <!-- Subtitle -->
+      <div class="subtitle">有已上线作品？来主导新项目，我们兜底发行</div>
+
+      <!-- Badge -->
+      <div class="badge-wrap">
+        <div class="badge">推荐成功入职 · 推荐人得 ¥10,000</div>
+      </div>
+      <div class="badge-note">入职当日发放 · 不拖不套路</div>
+
+      <!-- Divider -->
+      <div class="divider"></div>
+
+      <!-- Highlights -->
+      <div class="section-title">
+        <div class="bar"></div>
+        <h2>岗位核心亮点</h2>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <div class="emoji">🎮</div>
+          <div class="text">
+            <h3>用 AI 开发游戏，不是嘴上说说</h3>
+            <p>Cursor、Claude、各种 AI 全配，迭代周期从「周」压到「小时」</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="emoji">💡</div>
+          <div class="text">
+            <h3>方向你定，不层层审批</h3>
+            <p>游戏玩法、题材，完全自主决策，给你资源和试错空间</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="emoji">🚀</div>
+          <div class="text">
+            <h3>发行通道现成</h3>
+            <p>买量+发行团队就位，好 Demo 直接进通道，你只需专注创作</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="emoji">💰</div>
+          <div class="text">
+            <h3>无上限奖金</h3>
+            <p>底薪 + 项目分红 + 升星激励，游戏做成功你就能分到</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider"></div>
+
+      <!-- Requirements -->
+      <div class="section-title">
+        <div class="bar"></div>
+        <h2>我们希望你</h2>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <div class="emoji">✅</div>
+          <div class="text">
+            <h3>深度使用 AI</h3>
+            <p>策划、美术、程序、调优，AI 贯穿每一个环节</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="emoji">✅</div>
+          <div class="text">
+            <h3>有已上线作品</h3>
+            <p>Steam / TapTap / itch / 微信 / 抖音都行</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="emoji">❌</div>
+          <div class="text">
+            <h3>不需要赚到钱</h3>
+            <p>有上线作品就行，不要求爆款</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="emoji">❌</div>
+          <div class="text">
+            <h3>拒绝伪 AI 使用</h3>
+            <p>我们要的是把 AI 融入全流程的创作者</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider"></div>
+
+      <!-- QR Code -->
+      <div class="qr-section">
+        <div class="qr-card">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=560x560&margin=4&data=https://evaaa-oops.github.io/hortor-game-dev-recruit/&color=050510&bgcolor=ffffff" alt="QR Code">
+        </div>
+        <div class="qr-hint">长按识别，直接投递</div>
+        <div class="qr-company">疯狂游戏（豪腾系）</div>
+        <div class="qr-contact">HR 耿叶 · gengye@hortorgames.com</div>
+      </div>
+
+      <!-- Bottom line -->
+      <div class="bottom-line"></div>
+
+    </div>
+  </div>
+</body>
+</html>

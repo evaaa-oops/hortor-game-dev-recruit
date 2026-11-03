@@ -40,12 +40,18 @@ for i in range(300):
     draw.line([(0, i), (W, i)], fill=(r, g, b))
 
 # === Decorative top line ===
-draw.line([(340, 55), (740, 55)], fill=CYAN_DIM, width=2)
+draw.line([(340, 80), (740, 80)], fill=CYAN_DIM, width=2)
 
-# === Title ===
+# === Top Title (岗位名称) ===
 y = 120
+draw.text((W//2, y), "游戏制作人（AI 向）", fill=CYAN, font=fz(36), anchor="mt")
+y += 52
+draw.text((W//2, y), "疯狂游戏（豪腾系）", fill=LIGHT_GRAY, font=fz(26), anchor="mt")
+
+# === Main Title ===
+y = 240
 draw.text((W//2, y), "用 AI 做过游戏？", fill=WHITE, font=fz(56), anchor="mt")
-y += 76
+y += 78
 draw.text((W//2, y), "我们找的就是你！", fill=WHITE, font=fz(56), anchor="mt")
 
 # === Subtitle ===

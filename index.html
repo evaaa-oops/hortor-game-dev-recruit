@@ -835,6 +835,7 @@
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', 'hortor_resume');
+        formData.append('access_mode', 'public');
 
         fetch('https://api.cloudinary.com/v1_1/djdkr6wq/raw/upload', {
           method: 'POST',
