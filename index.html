@@ -752,18 +752,27 @@
       });
     }
 
-    // WeChat share
+    // WeChat share - copy link and guide user
     function shareToWechat() {
-      if (navigator.share) {
-        navigator.share({
-          title: '游戏制作人（AI 方向）招聘',
-          text: '用 AI 做过游戏？我们找的就是你！推荐成功入职得 ¥10,000',
-          url: PAGE_URL
-        });
-      } else {
-        copyLink();
-        alert('链接已复制，请打开微信粘贴转发～');
-      }
+      navigator.clipboard.writeText(PAGE_URL).then(() => {
+        const btn = document.querySelector('.wechat-share-btn');
+        btn.textContent = '✅ 链接已复制，请打开微信粘贴发送';
+        btn.style.background = 'linear-gradient(135deg, #07c160, #06ad56)';
+        setTimeout(() => {
+          btn.textContent = '在微信里转发';
+        }, 3000);
+      }).catch(() => {
+        // Fallback
+        const input = document.createElement('input');
+        input.value = PAGE_URL;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        const btn = document.querySelector('.wechat-share-btn');
+        btn.textContent = '✅ 链接已复制，请打开微信粘贴发送';
+        setTimeout(() => { btn.textContent = '在微信里转发'; }, 3000);
+      });
     }
 
     // Form submit
