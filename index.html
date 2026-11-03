@@ -474,20 +474,6 @@
       transition: all 0.2s;
     }
     .copy-btn:active { transform: scale(0.95); }
-    .wechat-share-btn {
-      width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, #07c160, #06ad56);
-      color: #fff;
-      font-size: 16px;
-      font-weight: 700;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      margin-bottom: 16px;
-      transition: all 0.2s;
-    }
-    .wechat-share-btn:active { transform: scale(0.98); }
     .modal-footer-text {
       font-size: 12px;
       color: var(--text-muted);
@@ -608,7 +594,7 @@
         <h2 class="section-title">怎么推荐</h2>
         <div class="step-item">
           <div class="step-num">1</div>
-          <div>把这条链接转发到微信群 / 朋友圈，或直接甩给你觉得合适的朋友</div>
+          <div>把这条链接转发到好友 / 微信群 / 朋友圈</div>
         </div>
         <div class="step-item">
           <div class="step-num">2</div>
@@ -730,7 +716,6 @@
           <button class="copy-btn" onclick="copyLink()">复制</button>
         </div>
       </div>
-      <button class="wechat-share-btn" id="wechatBtn" onclick="shareToWechat()">在微信里转发</button>
       <p class="modal-footer-text">对方点开直接能看到岗位，不用加好友、不用扫码。</p>
     </div>
   </div>
@@ -793,25 +778,6 @@
         const btn = document.querySelector('.copy-btn');
         btn.textContent = '已复制';
         setTimeout(() => { btn.textContent = '复制'; }, 2000);
-      });
-    }
-
-    // WeChat share - copy link and guide
-    function shareToWechat() {
-      navigator.clipboard.writeText(PAGE_URL).then(() => {
-        const btn = document.getElementById('wechatBtn');
-        btn.textContent = '✅ 链接已复制，请打开微信粘贴发送';
-        setTimeout(() => { btn.textContent = '在微信里转发'; }, 3000);
-      }).catch(() => {
-        const input = document.createElement('input');
-        input.value = PAGE_URL;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand('copy');
-        document.body.removeChild(input);
-        const btn = document.getElementById('wechatBtn');
-        btn.textContent = '✅ 链接已复制，请打开微信粘贴发送';
-        setTimeout(() => { btn.textContent = '在微信里转发'; }, 3000);
       });
     }
 
