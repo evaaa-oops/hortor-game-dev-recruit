@@ -638,6 +638,7 @@
         <form id="referralForm" enctype="multipart/form-data">
           <input type="hidden" name="_subject" value="🎮 游戏制作人招聘 - 新投递">
           <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="提交类型" id="submitType" value="我推荐朋友">
           <div class="form-group">
             <label>我的称呼 / 推荐人 <span class="required">*</span></label>
             <input type="text" name="推荐人姓名" id="referrerName" placeholder="你的姓名，用于发放推荐奖励" required>
@@ -667,10 +668,11 @@
             <label>候选人简历</label>
             <div class="file-upload" onclick="document.getElementById('resume').click()">
               <div class="icon">📄</div>
-              <div class="title">点击上传简历</div>
-              <div class="desc">PDF / Word / JPG / PNG，不超过 15MB；自荐建议附上，评估更快</div>
-              <input type="file" name="attachment" id="resume" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+              <div class="title" id="fileTitle">点击上传简历</div>
+              <div class="desc" id="fileDesc">PDF / Word / JPG / PNG，不超过 15MB；自荐建议附上，评估更快</div>
+              <input type="file" id="resume" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
             </div>
+            <input type="hidden" name="简历链接" id="resumeLinkField">
           </div>
 
           <div class="form-group">
@@ -746,9 +748,11 @@
       if (type === 'refer') {
         btns[0].classList.add('active');
         candidateFields.style.display = 'block';
+        document.getElementById('submitType').value = '我推荐朋友';
       } else {
         btns[1].classList.add('active');
         candidateFields.style.display = 'none';
+        document.getElementById('submitType').value = '自荐';
       }
     }
 
@@ -790,7 +794,7 @@
 
       const form = this;
       const formData = new FormData(form);
-      formData.append('提交类型', document.querySelector('.toggle-btn.active').textContent);
+      formData.append('提交类型', document.getElementById('submitType').value);
 
       fetch('https://formspree.io/f/moeepovv', {
         method: 'POST',
@@ -820,9 +824,35 @@
 
     document.getElementById('resume').addEventListener('change', function(e) {
       if (e.target.files.length > 0) {
-        const fileName = e.target.files[0].name;
-        document.querySelector('.file-upload .title').textContent = fileName;
-        document.querySelector('.file-upload .desc').textContent = '已选择，提交时一起上传';
+        const file = e.target.files[0];
+        const titleEl = document.getElementById('fileTitle');
+        const descEl = document.getElementById('fileDesc');
+        const linkField = document.getElementById('resumeLinkField');
+
+        titleEl.textContent = '上传中...';
+        descEl.textContent = '请稍候';
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('https://file.io', {
+          method: 'POST',
+          body: formData
+        }).then(res => res.json()).then(data => {
+          if (data.success) {
+            titleEl.textContent = '✅ ' + file.name;
+            descEl.textContent = '上传成功，提交时自动附上';
+            linkField.value = data.link;
+          } else {
+            titleEl.textContent = '❌ 上传失败';
+            descEl.textContent = '请重试，或直接在推荐理由中附上简历链接';
+            linkField.value = '';
+          }
+        }).catch(() => {
+          titleEl.textContent = '❌ 上传失败';
+          descEl.textContent = '请重试，或直接在推荐理由中附上简历链接';
+          linkField.value = '';
+        });
       }
     });
   </script>
