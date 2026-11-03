@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>游戏制作人（AI 方向）| 疯狂游戏</title>
+  <style>
+    :root {
+      --cyan: #00d4ff;
+      --purple: #7b2ff7;
+      --accent: #00d4ff;
+      --accent-light: #66e5ff;
+      --accent-dim: rgba(0, 212, 255, 0.08);
+      --accent-border: rgba(0, 212, 255, 0.15);
+      --bg: #050510;
+      --bg-card: rgba(0, 212, 255, 0.03);
+      --bg-card-hover: rgba(0, 212, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.06);
+      --text: #e8f0f8;
+      --text-secondary: #6b7d93;
+      --text-muted: #3d4f63;
+      --red: #ff4757;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container { max-width: 480px; margin: 0 auto; padding: 0; position: relative; z-index: 1; }
+
+    /* Hero */
+    .hero {
+      padding: 44px 20px 32px;
+      text-align: center;
+      position: relative;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.35;
+      letter-spacing: -0.3px;
+      position: relative;
+    }
+    .hero .subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 26px;
+      font-weight: 400;
+      position: relative;
+    }
+    .referral-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 17px;
+      font-weight: 700;
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.3), 0 0 60px rgba(123, 47, 247, 0.15);
+      position: relative;
+    }
+    .referral-badge .amount { font-size: 22px; }
+    .referral-note {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    /* Section */
+    .section {
+      padding: 28px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::before {
+      content: '';
+      width: 3px;
+      height: 18px;
+      background: linear-gradient(180deg, var(--cyan), var(--purple));
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+    }
+
+    /* Highlight Cards */
+    .highlights { display: grid; gap: 12px; }
+    .highlight-card {
+      background: var(--bg-card);
+      border: 1px solid var(--accent-border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      transition: all 0.3s;
+    }
+    .highlight-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.08);
+    }
+    .highlight-card .icon { font-size: 26px; flex-shrink: 0; line-height: 1; }
+    .highlight-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .highlight-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* Requirements */
+    .req-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .req-item:last-child { margin-bottom: 0; }
+    .req-item .check { color: var(--cyan); font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+    .req-item .cross { color: var(--red); font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+    .req-item .label { font-weight: 600; color: #fff; }
+    .req-item .desc { color: var(--text-secondary); }
+
+    /* Steps */
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .step-item:last-child { margin-bottom: 0; }
+    .step-num {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      background: var(--accent-dim);
+      color: var(--accent-light);
+      border: 1px solid var(--accent-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Form Section */
+    .form-section { padding: 28px 20px; }
+    .form-header { margin-bottom: 24px; }
+    .form-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .form-header p { font-size: 13px; color: var(--text-muted); }
+
+    /* Toggle */
+    .toggle-group {
+      display: flex;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s;
+      border: none;
+      background: transparent;
+    }
+    .toggle-btn.active {
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #fff;
+      box-shadow: 0 0 16px rgba(0, 212, 255, 0.25);
+    }
+
+    /* Form */
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .form-group label .required { color: var(--red); }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: #3a4a5c; }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+
+    /* File Upload */
+    .file-upload {
+      border: 2px dashed rgba(0, 212, 255, 0.15);
+      border-radius: 12px;
+      padding: 22px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .file-upload:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 16px rgba(0, 212, 255, 0.1);
+    }
+    .file-upload .icon { font-size: 30px; margin-bottom: 8px; }
+    .file-upload .title { font-size: 14px; color: var(--accent-light); font-weight: 600; margin-bottom: 4px; }
+    .file-upload .desc { font-size: 12px; color: var(--text-muted); }
+    .file-upload input { display: none; }
+
+    /* Checkbox */
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 22px 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .checkbox-group input {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--cyan);
+      flex-shrink: 0;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+    }
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.35), 0 0 60px rgba(123, 47, 247, 0.15);
+    }
+    .submit-btn:active { transform: translateY(0); }
+
+    /* Success */
+    .success-msg {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .success-msg .icon { font-size: 48px; margin-bottom: 16px; }
+    .success-msg h3 { font-size: 20px; color: var(--cyan); margin-bottom: 8px; text-shadow: 0 0 12px rgba(0, 212, 255, 0.3); }
+    .success-msg p { font-size: 14px; color: var(--text-secondary); }
+
+    /* Bottom Actions */
+    .bottom-actions {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      gap: 12px;
+      padding: 14px 20px;
+      padding-bottom: max(14px, env(safe-area-inset-bottom));
+      background: rgba(5, 5, 16, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      z-index: 10;
+    }
+    .bottom-actions button {
+      flex: 1;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #fff;
+      box-shadow: 0 0 16px rgba(0, 212, 255, 0.2);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 30px 20px 100px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+    .footer a { color: var(--accent-light); text-decoration: none; }
+
+    .spacer { height: 80px; }
+
+    /* Responsive */
+    @media (max-width: 360px) {
+      .hero h1 { font-size: 24px; }
+      .hero .subtitle { font-size: 14px; }
+      .referral-badge { font-size: 15px; padding: 12px 24px; }
+      .referral-badge .amount { font-size: 18px; }
+    }
+    @media (min-width: 768px) {
+      .container { max-width: 480px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Hero -->
+    <div class="hero">
+      <h1>用 AI 做过游戏？<br>我们找的就是你！</h1>
+      <p class="subtitle">有已上线作品？来主导新项目，我们兜底发行</p>
+      <div class="referral-badge">
+        推荐成功入职，推荐人得 ¥<span class="amount">10,000</span>
+      </div>
+      <p class="referral-note">入职当日发放，不拖不套路</p>
+    </div>
+
+    <!-- 岗位核心亮点 -->
+    <div class="section">
+      <h2 class="section-title">岗位核心亮点</h2>
+      <div class="highlights">
+        <div class="highlight-card">
+          <div class="icon">🎮</div>
+          <div>
+            <h3>用 AI 开发游戏，不是嘴上说说</h3>
+            <p>Cursor、Claude、各种 AI 全配，迭代周期从「周」压到「小时」</p>
+          </div>
+        </div>
+        <div class="highlight-card">
+          <div class="icon">💡</div>
+          <div>
+            <h3>方向你定，不层层审批</h3>
+            <p>游戏玩法、题材，完全自主决策。给你资源和试错空间</p>
+          </div>
+        </div>
+        <div class="highlight-card">
+          <div class="icon">🚀</div>
+          <div>
+            <h3>发行通道现成</h3>
+            <p>买量 + 发行团队就位，好 Demo 直接进通道。你只需专注创作</p>
+          </div>
+        </div>
+        <div class="highlight-card">
+          <div class="icon">💰</div>
+          <div>
+            <h3>无上限奖金</h3>
+            <p>底薪 + 项目分红 + 升星激励。游戏做成功，你就能分到</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 我们希望你 -->
+    <div class="section">
+      <h2 class="section-title">我们希望你</h2>
+      <div class="req-item">
+        <span class="check">✅</span>
+        <div>
+          <span class="label">深度使用 AI：</span>
+          <span class="desc">策划、美术、程序、调优，AI 贯穿游戏的每一个环节，跑通了 AI 游戏生产链路</span>
+        </div>
+      </div>
+      <div class="req-item">
+        <span class="check">✅</span>
+        <div>
+          <span class="label">有已上线作品：</span>
+          <span class="desc">平台随便——Steam / TapTap / itch / 微信小游戏 / 抖音都行</span>
+        </div>
+      </div>
+      <div class="req-item">
+        <span class="cross">❌</span>
+        <div>
+          <span class="label">不需要这款游戏赚到钱：</span>
+          <span class="desc">有上线作品就行，不要求爆款</span>
+        </div>
+      </div>
+      <div class="req-item">
+        <span class="cross">❌</span>
+        <div>
+          <span class="label">拒绝「AI 只用来出图」的伪使用：</span>
+          <span class="desc">我们要的是把 AI 融入生产全流程的创作者</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 怎么推荐 -->
+    <div class="section">
+      <h2 class="section-title">怎么推荐</h2>
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div>把这条链接转发到微信群 / 朋友圈，或直接甩给你觉得合适的朋友</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div>朋友在页面里填信息、上传简历或作品链接，我们 48 小时内联系</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div>对方入职，推荐奖励按链接归属自动结算到你名下</div>
+      </div>
+    </div>
+
+    <!-- 表单 -->
+    <div class="form-section">
+      <div class="form-header">
+        <h2>推荐一位候选人</h2>
+        <p>我们只把信息用于本次招聘联系，48 小时内必有回复。</p>
+      </div>
+
+      <div class="toggle-group">
+        <button class="toggle-btn active" onclick="toggleForm('refer')">我推荐朋友</button>
+        <button class="toggle-btn" onclick="toggleForm('self')">我自己看看</button>
+      </div>
+
+      <form id="referralForm">
+        <div class="form-group">
+          <label>我的称呼 / 推荐人 <span class="required">*</span></label>
+          <input type="text" id="referrerName" placeholder="你的姓名，用于发放推荐奖励" required>
+        </div>
+        <div class="form-group">
+          <label>我的手机号 <span class="required">*</span></label>
+          <input type="tel" id="referrerPhone" placeholder="11 位手机号" required>
+        </div>
+
+        <div id="candidateFields">
+          <div class="form-group">
+            <label>候选人姓名 <span class="required">*</span></label>
+            <input type="text" id="candidateName" placeholder="怎么称呼 TA">
+          </div>
+          <div class="form-group">
+            <label>候选人手机号 <span class="required">*</span></label>
+            <input type="tel" id="candidatePhone" placeholder="11 位手机号">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>TA 最满意的一件作品链接</label>
+          <input type="text" id="works" placeholder="上线产品 / 个人作品 / GameJam 都行">
+        </div>
+
+        <div class="form-group">
+          <label>候选人简历</label>
+          <div class="file-upload" onclick="document.getElementById('resume').click()">
+            <div class="icon">📄</div>
+            <div class="title">点击上传简历</div>
+            <div class="desc">PDF / Word / JPG / PNG，不超过 15MB；自荐建议附上，评估更快</div>
+            <input type="file" id="resume" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>一句话推荐理由</label>
+          <textarea id="reason" placeholder="比如：做过 2 款百万流水小游戏，AI 出原型很快"></textarea>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="consent">
+          <label for="consent">我已告知对方并取得同意，同意将信息提供给疯狂游戏 HR 用于招聘沟通。</label>
+        </div>
+
+        <button type="submit" class="submit-btn">提交推荐</button>
+      </form>
+
+      <div class="success-msg" id="successMsg">
+        <div class="icon">✅</div>
+        <h3>提交成功！</h3>
+        <p>我们将在 48 小时内联系你</p>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>疯狂游戏（豪腾系）</p>
+      <p>HR 鲍莹莹 18211171931 · baoyingying@hortorgames.com</p>
+    </div>
+
+  </div>
+
+  <!-- Bottom Actions -->
+  <div class="bottom-actions">
+    <button class="btn-secondary" onclick="sharePage()">转发给朋友</button>
+    <button class="btn-primary" onclick="scrollToForm()">我要推荐 / 自荐</button>
+  </div>
+
+  <script>
+    function toggleForm(type) {
+      const btns = document.querySelectorAll('.toggle-btn');
+      const candidateFields = document.getElementById('candidateFields');
+      btns.forEach(btn => btn.classList.remove('active'));
+      if (type === 'refer') {
+        btns[0].classList.add('active');
+        candidateFields.style.display = 'block';
+      } else {
+        btns[1].classList.add('active');
+        candidateFields.style.display = 'none';
+      }
+    }
+
+    function scrollToForm() {
+      document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function sharePage() {
+      if (navigator.share) {
+        navigator.share({
+          title: '游戏制作人（AI 方向）招聘',
+          text: '用 AI 做过游戏？我们找的就是你！推荐成功入职得 ¥10,000',
+          url: window.location.href
+        });
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('链接已复制，快去转发吧！');
+      }
+    }
+
+    document.getElementById('referralForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = {
+        referrerName: document.getElementById('referrerName').value,
+        referrerPhone: document.getElementById('referrerPhone').value,
+        candidateName: document.getElementById('candidateName').value,
+        candidatePhone: document.getElementById('candidatePhone').value,
+        works: document.getElementById('works').value,
+        reason: document.getElementById('reason').value,
+        type: document.querySelector('.toggle-btn.active').textContent,
+        submittedAt: new Date().toISOString()
+      };
+      const submissions = JSON.parse(localStorage.getItem('referrals') || '[]');
+      submissions.push(formData);
+      localStorage.setItem('referrals', JSON.stringify(submissions));
+      this.style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+      document.getElementById('successMsg').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('resume').addEventListener('change', function(e) {
+      if (e.target.files.length > 0) {
+        const fileName = e.target.files[0].name;
+        document.querySelector('.file-upload .title').textContent = fileName;
+        document.querySelector('.file-upload .desc').textContent = '已选择，提交时一起上传';
+      }
+    });
+  </script>
+</body>
+</html>
